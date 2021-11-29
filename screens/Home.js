@@ -3,7 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import styled from "styled-components/native";
 import colors from "../colors";
 import { useDB } from "../context";
-import { FlatList } from "react-native";
+import { FlatList, LayoutAnimation, UIManager, Platform } from "react-native";
 
 const Container = styled.View`
   flex: 1;
@@ -52,6 +52,13 @@ const Separator = styled.View`
   height: 10px;
 `;
 
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
 const Home = ({ navigation: { navigate } }) => {
   const realm = useDB();
   const [feelings, setFeelings] = useState([]);
@@ -59,6 +66,7 @@ const Home = ({ navigation: { navigate } }) => {
   useEffect(() => {
     const feelingsFromDB = realm.objects("Feeling");
     feelingsFromDB.addListener((feelings, changes) => {
+      LayoutAnimation.spring();
       setFeelings(feelings.sorted("_id", true));
     });
     return () => {
