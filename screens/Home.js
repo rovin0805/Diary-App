@@ -31,7 +31,7 @@ const Btn = styled.TouchableOpacity`
   box-shadow: 1px 1px 3px rgba(41, 30, 95, 0.2);
 `;
 
-const Record = styled.View`
+const Record = styled.TouchableOpacity`
   background-color: ${colors.cardColor};
   flex-direction: row;
   align-items: center;
@@ -66,6 +66,13 @@ const Home = ({ navigation: { navigate } }) => {
     };
   }, []);
 
+  const deleteFeeling = (id) => {
+    realm.write(() => {
+      const targetFeeling = realm.objectForPrimaryKey("Feeling", id);
+      realm.delete(targetFeeling);
+    });
+  };
+
   return (
     <Container>
       <Title>My Journal 🔭</Title>
@@ -75,7 +82,7 @@ const Home = ({ navigation: { navigate } }) => {
         ItemSeparatorComponent={Separator}
         keyExtractor={(feeling) => feeling._id + ""}
         renderItem={({ item }) => (
-          <Record>
+          <Record onPress={() => deleteFeeling(item._id)}>
             <Emotion>{item.emotion}</Emotion>
             <Message>{item.message}</Message>
           </Record>
