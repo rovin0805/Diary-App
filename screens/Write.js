@@ -64,7 +64,7 @@ const EmotionText = styled.Text`
 
 const emotions = ["🤯", "🥲", "🤬", "🤗", "🥰", "😊", "🤩"];
 
-const Write = () => {
+const Write = ({ navigation: { goBack } }) => {
   const [feelings, setFeelings] = useState("");
   const [selectedEmotion, setEmotion] = useState(null);
   const realm = useDB();
@@ -77,6 +77,14 @@ const Write = () => {
     if (feelings === "" || selectedEmotion == null) {
       return Alert.alert("Please complete form");
     }
+    realm.write(() => {
+      realm.create("Feeling", {
+        _id: Date.now(),
+        emotion: selectedEmotion,
+        message: feelings,
+      });
+    });
+    goBack();
   };
 
   return (
