@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Alert } from "react-native";
+import { Alert, Platform } from "react-native";
 import styled from "styled-components/native";
 import colors from "../colors";
 import { useDB } from "../context";
+import { AdMobInterstitial } from "expo-ads-admob";
 
 const Container = styled.View`
   background-color: ${colors.bgColor};
@@ -64,6 +65,11 @@ const EmotionText = styled.Text`
 
 const emotions = ["🤯", "🥲", "🤬", "🤗", "🥰", "😊", "🤩"];
 
+const INTERSTITIAL_TEST_ID = Platform.select({
+  ios: "ca-app-pub-3940256099942544/4411468910",
+  android: "ca-app-pub-3940256099942544/1033173712",
+});
+
 const Write = ({ navigation: { goBack } }) => {
   const [feelings, setFeelings] = useState("");
   const [selectedEmotion, setEmotion] = useState(null);
@@ -73,18 +79,23 @@ const Write = ({ navigation: { goBack } }) => {
 
   const onChangeText = (text) => setFeelings(text);
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     if (feelings === "" || selectedEmotion == null) {
       return Alert.alert("Please complete form");
     }
-    realm.write(() => {
-      realm.create("Feeling", {
-        _id: Date.now(),
-        emotion: selectedEmotion,
-        message: feelings,
+    await AdMobInterstitial.setAdUnitID(INTERSTITIAL_TEST_ID);
+    await AdMobInterstitial.requestAdAsync({ serverPersonalizedAds: true });
+    await AdMobInterstitial.showAdAsync();
+    AdMobInterstitial.addEventListener("interstitialDidClose", () => {
+      realm.write(() => {
+        realm.create("Feeling", {
+          _id: Date.now(),
+          emotion: selectedEmotion,
+          message: feelings,
+        });
       });
+      goBack();
     });
-    goBack();
   };
 
   return (

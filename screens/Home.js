@@ -4,18 +4,21 @@ import styled from "styled-components/native";
 import colors from "../colors";
 import { useDB } from "../context";
 import { FlatList, LayoutAnimation, UIManager, Platform } from "react-native";
+import { AdMobBanner } from "expo-ads-admob";
 
 const Container = styled.View`
   flex: 1;
   padding: 0px 30px;
   padding-top: 100px;
   background-color: ${colors.bgColor};
+  align-items: center;
+  width: 100%;
 `;
 
 const Title = styled.Text`
   color: ${colors.textColor};
   font-size: 38px;
-  margin-bottom: 100px;
+  margin-bottom: 20px;
 `;
 
 const Btn = styled.TouchableOpacity`
@@ -59,6 +62,11 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+const BANNER_TEST_ID = Platform.select({
+  ios: "ca-app-pub-3940256099942544/2934735716",
+  android: "ca-app-pub-3940256099942544/6300978111",
+});
+
 const Home = ({ navigation: { navigate } }) => {
   const realm = useDB();
   const [feelings, setFeelings] = useState([]);
@@ -84,8 +92,10 @@ const Home = ({ navigation: { navigate } }) => {
   return (
     <Container>
       <Title>My Journal 🔭</Title>
+      <AdMobBanner bannerSize="fullBanner" adUnitID={BANNER_TEST_ID} />
       <FlatList
         data={feelings}
+        style={{ marginVertical: 20, width: "100%" }}
         contentContainerStyle={{ paddingVertical: 10 }}
         ItemSeparatorComponent={Separator}
         keyExtractor={(feeling) => feeling._id + ""}
