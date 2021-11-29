@@ -4,15 +4,18 @@ import Navigator from "./Navigator";
 import AppLoading from "expo-app-loading";
 import Realm from "realm";
 import { FeelingSchema } from "./schema";
+import { DBContextProvider } from "./context";
 
 export default function App() {
   const [ready, setReady] = useState(false);
+  const [realm, setRealm] = useState(null);
 
   const startLoading = async () => {
-    const realm = await Realm.open({
+    const connection = await Realm.open({
       path: "nomadDiaryDB",
       schema: [FeelingSchema],
     });
+    setRealm(connection);
   };
 
   const onFinish = () => setReady(true);
@@ -28,8 +31,10 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <Navigator />
-    </NavigationContainer>
+    <DBContextProvider value={realm}>
+      <NavigationContainer>
+        <Navigator />
+      </NavigationContainer>
+    </DBContextProvider>
   );
 }
